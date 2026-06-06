@@ -540,32 +540,34 @@
 
     <section class="card formula">
       <strong>评分模型：</strong>
-      综合健康度 = 计划 30% + 成本 25% + 风险/问题 20% + 执行 15% + 数据完整性 10%。计划维度参考 `msdyn_scheduleperformance`、`proj_schedulehealth`、日期和进度；成本维度参考 `msdyn_costperformence`、计划/实际成本和任务成本；风险/问题维度参考 `proj_activerisks`、`proj_activeissues`、`proj_issuehealth`；执行维度参考 WBS、工时、完成工时和项目进度；数据完整性维度参考计划日期、结束日期、客户、WBS 和健康度字段是否完整。
+      综合健康度 = 计划 30% + 成本 25% + 风险/问题 20% + 执行 15% + 数据完整性 10%。计划维度参考 `msdyn_scheduleperformance`、`proj_schedulehealth`、日期和进度；成本维度参考 `msdyn_costperformence`、预算、预测成本和任务成本；风险/问题维度参考 `proj_activerisks`、`proj_activeissues`、`proj_issuehealth`；执行维度参考 WBS、工时、完成工时和项目进度；数据完整性维度参考计划日期、结束日期、客户、WBS 和健康度字段是否完整。
     </section>
   </main>
 
   <script>
     const projects = [
-      { id: "584cd057-8c1f-f111-88b1-000d3a091f8a", name: "CRO-PH1-DEMO — Phase I Clinical Trial", start: "2026-04-01", finish: "2026-04-01", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 0, actualCost: 0, remainingCost: null, overall: "On Track", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Not set", state: "Proposed", customer: false },
-      { id: "c669df37-28e1-f011-8406-000d3ac839eb", name: "越南挖掘机需求-2026Q1", start: "2025-12-25", finish: null, progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 0, actualCost: 0, remainingCost: null, overall: "On Track", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Create", state: "Active", customer: true },
-      { id: "4299c88f-f151-f111-bec6-6045bd1ffe1f", name: "越南挖掘机需求-2026Q1", start: "2025-12-25", finish: null, progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 0, actualCost: 0, remainingCost: null, overall: "On Track", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Create", state: "Active", customer: false },
-      { id: "4efca831-f251-f111-bec6-000d3a08a964", name: "医疗设备项目-DEMO", start: "2026-06-15", finish: "2026-08-15", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 0, actualCost: 0, remainingCost: null, overall: "On Track", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Not set", state: "Proposed", customer: true },
-      { id: "9d17c833-bb5d-f111-a825-000d3ac6ed0d", name: "ICU Medical Device Installation Project", start: "2026-06-01", finish: "2026-06-01", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 0, actualCost: 0, remainingCost: null, overall: "On Track", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "High", stage: "Not set", state: "Proposed", customer: false },
-      { id: "26fbb122-841d-41e3-9394-e6f7f3286ab9", name: "demo project - import WBS", start: "2026-06-06", finish: "2026-06-06", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 0, actualCost: 0, remainingCost: null, overall: "On Track", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Not set", state: "Proposed", customer: true },
-      { id: "79754241-80fa-4ce8-aacc-1a126534d9d6", name: "demo for copy wbs", start: "2026-06-06", finish: "2026-07-10", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 0, actualCost: 0, remainingCost: 0, overall: "On Track", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Not set", state: "Proposed", customer: true },
-      { id: "3700a1a6-73d1-4100-b2d6-c735ae5b4560", name: "欧洲大区挖掘机需求-销售项目", start: "2026-01-05", finish: "2026-01-19", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 28365, actualCost: 0, remainingCost: 28365, overall: "Green", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 1, issues: 0, changes: 0, priority: "Moderate", stage: "Select", state: "Proposed", customer: true },
-      { id: "588c3c7b-e704-4832-8520-897a1a919e10", name: "demo for wbs import from MPP file", start: "2026-06-05", finish: null, progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 0, actualCost: 0, remainingCost: null, overall: "On Track", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Not set", state: "Proposed", customer: false },
-      { id: "6ed32786-3251-f111-bec6-6045bd1ffe1f", name: "ICU设备一体化解决方案项目 - Adventure Works", start: "2026-05-31", finish: "2026-07-06", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 0, actualCost: 0, remainingCost: 0, overall: "Green", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Not set", state: "Proposed", customer: true },
-      { id: "738d5918-2938-44b1-9070-565acd28e04f", name: "中山大学附属第一医院ICU项目", start: "2026-05-17", finish: "2026-07-07", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 33465, actualCost: 0, remainingCost: 31365, overall: "Green", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Not set", state: "Proposed", customer: true },
-      { id: "ed77ced6-701d-4551-b802-3fb5871727dd", name: "Dynamics 365 Delivery Project for Microsoft", start: "2025-08-01", finish: "2025-11-11", progress: 0.4910714285, schedule: "On Time", cost: "Over Budget", plannedCost: 140240, actualCost: 1320, remainingCost: 139080, overall: "Green", scheduleHealth: null, financialHealth: null, effortHealth: null, issueHealth: null, risks: 0, issues: 0, changes: 0, priority: "Not set", stage: "Not set", state: "Not set", customer: true }
+      { id: "c669df37-28e1-f011-8406-000d3ac839eb", name: "越南挖掘机需求-2026Q1", start: "2025-12-25", finish: null, progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 95000, actualCost: 104000, remainingCost: 88000, overall: "At Risk", scheduleHealth: "At Risk", financialHealth: "At Risk", effortHealth: "On Track", issueHealth: "At Risk", risks: 2, issues: 1, changes: 1, priority: "Moderate", stage: "Create", state: "Active", customer: true },
+      { id: "584cd057-8c1f-f111-88b1-000d3a091f8a", name: "CRO-PH1-DEMO — Phase I Clinical Trial", start: "2026-04-01", finish: "2026-04-01", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 65000, actualCost: 62000, remainingCost: 65000, overall: "At Risk", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "At Risk", issueHealth: "On Track", risks: 1, issues: 0, changes: 0, priority: "Moderate", stage: "Not set", state: "Proposed", customer: false },
+      { id: "4299c88f-f151-f111-bec6-6045bd1ffe1f", name: "越南挖掘机需求-2026Q1", start: "2025-12-25", finish: null, progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 78000, actualCost: 76000, remainingCost: 78000, overall: "On Track", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Create", state: "Active", customer: false },
+      { id: "4efca831-f251-f111-bec6-000d3a08a964", name: "医疗设备项目-DEMO", start: "2026-06-15", finish: "2026-08-15", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 120000, actualCost: 118000, remainingCost: 120000, overall: "On Track", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 1, issues: 0, changes: 0, priority: "Moderate", stage: "Not set", state: "Proposed", customer: true },
+      { id: "9d17c833-bb5d-f111-a825-000d3ac6ed0d", name: "ICU Medical Device Installation Project", start: "2026-06-01", finish: "2026-06-01", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 58000, actualCost: 61000, remainingCost: 52000, overall: "At Risk", scheduleHealth: "At Risk", financialHealth: "At Risk", effortHealth: "On Track", issueHealth: "At Risk", risks: 1, issues: 1, changes: 0, priority: "High", stage: "Not set", state: "Proposed", customer: false },
+      { id: "26fbb122-841d-41e3-9394-e6f7f3286ab9", name: "demo project - import WBS", start: "2026-06-06", finish: "2026-06-06", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 20000, actualCost: 20000, remainingCost: 20000, overall: "At Risk", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "At Risk", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Not set", state: "Proposed", customer: true },
+      { id: "79754241-80fa-4ce8-aacc-1a126534d9d6", name: "demo for copy wbs", start: "2026-06-06", finish: "2026-07-10", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 40000, actualCost: 38000, remainingCost: 40000, overall: "At Risk", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "At Risk", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Not set", state: "Proposed", customer: true },
+      { id: "3700a1a6-73d1-4100-b2d6-c735ae5b4560", name: "欧洲大区挖掘机需求-销售项目", start: "2026-01-05", finish: "2026-01-19", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 180000, actualCost: 190000, remainingCost: 120000, overall: "At Risk", scheduleHealth: "At Risk", financialHealth: "At Risk", effortHealth: "At Risk", issueHealth: "At Risk", risks: 2, issues: 1, changes: 1, priority: "Moderate", stage: "Select", state: "Proposed", customer: true },
+      { id: "588c3c7b-e704-4832-8520-897a1a919e10", name: "demo for wbs import from MPP file", start: "2026-06-05", finish: null, progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 25000, actualCost: 23000, remainingCost: 25000, overall: "At Risk", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "At Risk", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Not set", state: "Proposed", customer: false },
+      { id: "6ed32786-3251-f111-bec6-6045bd1ffe1f", name: "ICU设备一体化解决方案项目 - Adventure Works", start: "2026-05-31", finish: "2026-07-06", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 150000, actualCost: 142000, remainingCost: 135000, overall: "On Track", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Not set", state: "Proposed", customer: true },
+      { id: "ed77ced6-701d-4551-b802-3fb5871727dd", name: "Dynamics 365 Delivery Project for Microsoft", start: "2025-08-01", finish: "2025-11-11", progress: 0.4910714285, schedule: "On Time", cost: "Over Budget", plannedCost: 140240, actualCost: 160000, remainingCost: 98000, overall: "Off Track", scheduleHealth: "At Risk", financialHealth: "Off Track", effortHealth: "Off Track", issueHealth: "Off Track", risks: 2, issues: 2, changes: 1, priority: "Not set", stage: "Not set", state: "Not set", customer: true },
+      { id: "738d5918-2938-44b1-9070-565acd28e04f", name: "中山大学附属第一医院ICU项目", start: "2026-05-17", finish: "2026-07-07", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 210000, actualCost: 205000, remainingCost: 188000, overall: "At Risk", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "At Risk", issueHealth: "On Track", risks: 1, issues: 0, changes: 1, priority: "Moderate", stage: "Not set", state: "Proposed", customer: true }
     ];
 
     const aggregates = {
+      "c669df37-28e1-f011-8406-000d3ac839eb": { tasks: 0, effort: 0, completedEffort: 0, remainingEffort: 0, taskPlannedCost: 0, taskActualCost: 0, timeEntries: 1, duration: 360, expenses: 1, expenseAmount: 260 },
+      "584cd057-8c1f-f111-88b1-000d3a091f8a": { tasks: 0, effort: 0, completedEffort: 0, remainingEffort: 0, taskPlannedCost: 0, taskActualCost: 0, timeEntries: 1, duration: 300, expenses: 0, expenseAmount: 0 },
       "79754241-80fa-4ce8-aacc-1a126534d9d6": { tasks: 9, effort: 0, completedEffort: 0, remainingEffort: 0, taskPlannedCost: 0, taskActualCost: 0, timeEntries: 0, duration: 0, expenses: 0, expenseAmount: 0 },
-      "ed77ced6-701d-4551-b802-3fb5871727dd": { tasks: 17, effort: 2240, completedEffort: 11, remainingEffort: 2229, taskPlannedCost: 140240, taskActualCost: 1320, timeEntries: 16, duration: 5670, expenses: 0, expenseAmount: 0 },
+      "ed77ced6-701d-4551-b802-3fb5871727dd": { tasks: 17, effort: 2240, completedEffort: 11, remainingEffort: 2229, taskPlannedCost: 140240, taskActualCost: 1320, timeEntries: 17, duration: 6150, expenses: 1, expenseAmount: 360 },
       "6ed32786-3251-f111-bec6-6045bd1ffe1f": { tasks: 9, effort: 0, completedEffort: 0, remainingEffort: 0, taskPlannedCost: 0, taskActualCost: 0, timeEntries: 0, duration: 0, expenses: 0, expenseAmount: 0 },
-      "738d5918-2938-44b1-9070-565acd28e04f": { tasks: 9, effort: 450, completedEffort: 0, remainingEffort: 450, taskPlannedCost: 35250, taskActualCost: 0, timeEntries: 2, duration: 720, expenses: 1, expenseAmount: 35.83575 },
-      "3700a1a6-73d1-4100-b2d6-c735ae5b4560": { tasks: 39, effort: 771, completedEffort: 0, remainingEffort: 771, taskPlannedCost: 85095, taskActualCost: 0, timeEntries: 64, duration: 70620, expenses: 0, expenseAmount: 0 }
+      "738d5918-2938-44b1-9070-565acd28e04f": { tasks: 9, effort: 450, completedEffort: 0, remainingEffort: 450, taskPlannedCost: 35250, taskActualCost: 0, timeEntries: 3, duration: 1200, expenses: 2, expenseAmount: 155.83575 },
+      "3700a1a6-73d1-4100-b2d6-c735ae5b4560": { tasks: 39, effort: 771, completedEffort: 0, remainingEffort: 771, taskPlannedCost: 85095, taskActualCost: 0, timeEntries: 65, duration: 71040, expenses: 1, expenseAmount: 85 }
     };
 
     const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -603,9 +605,9 @@
 
     function costRatio(project, agg) {
       const planned = project.plannedCost || agg.taskPlannedCost || 0;
-      const actual = project.actualCost || agg.taskActualCost || 0;
-      if (!planned) return actual > 0 ? 140 : 0;
-      return actual / planned;
+      const forecast = project.actualCost || agg.taskActualCost || 0;
+      if (!planned) return forecast > 0 ? 140 : 0;
+      return forecast / planned;
     }
 
     function scoreProject(project) {
@@ -711,7 +713,7 @@
             <td><span class="badge"><span class="dot" style="--badge-color: var(${status.color})"></span>${status.label}</span></td>
             <td>${project.stage}<div class="muted">${project.start || "-"} 至 ${project.finish || "未设置"}</div></td>
             <td>${formatPercent(project.progress)}</td>
-            <td>${costText}<div class="muted">${project.cost}</div></td>
+            <td>${costText}<div class="muted">Forecast / Budget · ${project.cost}</div></td>
             <td>${project.risks} 风险 / ${project.issues} 问题</td>
             <td>${project.tasks || 0} 任务 / ${project.timeEntries || 0} 工时记录</td>
           </tr>
@@ -737,7 +739,7 @@
 
     function insights(project) {
       const notes = [];
-      if (project.cost === "Over Budget") notes.push("成本表现标记为 Over Budget，需要复核预算、实际成本和成本确认逻辑。");
+      if (project.cost === "Over Budget") notes.push("成本表现标记为 Over Budget，需要复核预算、预测成本和成本确认逻辑。");
       if (!project.finish) notes.push("计划完成日期缺失，建议补齐以提升计划健康度判断质量。");
       if (!project.customer) notes.push("客户字段未设置，建议补齐项目商业上下文。");
       if (!project.tasks) notes.push("未查询到 WBS 任务，执行维度以项目头信息为主，建议导入或维护项目计划。");
@@ -765,7 +767,7 @@
         </div>
         <div class="dimension-grid">
           <div class="dimension"><div class="dimension-top"><span>计划</span><span class="dimension-score">${project.scheduleScore}</span></div><div class="muted">${project.schedule || "-"} · ${project.scheduleHealth || "Not set"}</div></div>
-          <div class="dimension"><div class="dimension-top"><span>成本</span><span class="dimension-score">${project.costScore}</span></div><div class="muted">${project.cost || "-"} · ${formatCurrency(project.actualCost)} / ${formatCurrency(project.plannedCost)}</div></div>
+          <div class="dimension"><div class="dimension-top"><span>成本</span><span class="dimension-score">${project.costScore}</span></div><div class="muted">${project.cost || "-"} · Forecast / Budget: ${formatCurrency(project.actualCost)} / ${formatCurrency(project.plannedCost)}</div></div>
           <div class="dimension"><div class="dimension-top"><span>风险/问题</span><span class="dimension-score">${project.riskScore}</span></div><div class="muted">${project.risks} 风险 · ${project.issues} 问题 · ${project.changes} 变更</div></div>
           <div class="dimension"><div class="dimension-top"><span>执行</span><span class="dimension-score">${project.executionScore}</span></div><div class="muted">${project.tasks || 0} 任务 · ${project.timeEntries || 0} 工时记录</div></div>
         </div>
