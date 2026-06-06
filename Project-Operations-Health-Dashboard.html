@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Operations Project Health Dashboard</title>
+  <script>
+    (() => {
+      const param = new URLSearchParams(window.location.search).get("clawpilotTheme");
+      const theme =
+        param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --cp-bg: #f7f4ef;
+      --cp-bg-elevated: #fcfbf8;
+      --cp-surface: #ffffff;
+      --cp-surface-soft: #f5f5f5;
+      --cp-border: #dedede;
+      --cp-border-strong: #919191;
+      --cp-text: #242424;
+      --cp-text-muted: #5c5c5c;
+      --cp-text-soft: #6f6f6f;
+      --cp-accent: #b11f4b;
+      --cp-accent-hover: #9a1a41;
+      --cp-accent-soft: rgba(177, 31, 75, 0.08);
+      --cp-accent-fg: #ffffff;
+      --cp-success: #16a34a;
+      --cp-danger: #dc2626;
+      --cp-warning: #f59e0b;
+      --cp-link: #0078d4;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+      --cp-overlay: rgba(255, 255, 255, 0.8);
+      --cp-panel: rgba(255, 255, 255, 0.86);
+      --cp-panel-strong: rgba(255, 255, 255, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.55);
+      --cp-highlight: rgba(177, 31, 75, 0.12);
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --cp-bg: #3d3b3a;
+      --cp-bg-elevated: #343231;
+      --cp-surface: #292929;
+      --cp-surface-soft: #2e2e2e;
+      --cp-border: #474747;
+      --cp-border-strong: #5f5f5f;
+      --cp-text: #dedede;
+      --cp-text-muted: #919191;
+      --cp-text-soft: #b0b0b0;
+      --cp-accent: #fd8ea1;
+      --cp-accent-hover: #fb7b91;
+      --cp-accent-soft: rgba(253, 142, 161, 0.14);
+      --cp-accent-fg: #1a1a1a;
+      --cp-success: #4ade80;
+      --cp-danger: #f87171;
+      --cp-warning: #fbbf24;
+      --cp-link: #4da6ff;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+      --cp-overlay: rgba(41, 41, 41, 0.88);
+      --cp-panel: rgba(41, 41, 41, 0.72);
+      --cp-panel-strong: rgba(41, 41, 41, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.04);
+      --cp-highlight: rgba(253, 142, 161, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--cp-bg);
+      color: var(--cp-text);
+      font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    button, input, select { font: inherit; }
+
+    .app-shell {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--cp-accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      max-width: 900px;
+      color: var(--cp-text-muted);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .control {
+      min-height: 38px;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-surface);
+      color: var(--cp-text);
+      padding: 8px 12px;
+    }
+
+    .btn {
+      min-height: 38px;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-surface);
+      color: var(--cp-text);
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      border-color: var(--cp-accent);
+      background: var(--cp-accent);
+      color: var(--cp-accent-fg);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: var(--cp-surface);
+      border: 1px solid var(--cp-border);
+      border-radius: 16px;
+      box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+    }
+
+    .metric-card {
+      padding: 16px;
+      min-height: 116px;
+    }
+
+    .metric-label {
+      color: var(--cp-text-muted);
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .metric-value {
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    .metric-note {
+      color: var(--cp-text-soft);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(360px, 0.65fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 16px 0;
+      margin-bottom: 10px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    .panel-note {
+      margin: 0;
+      color: var(--cp-text-muted);
+      font-size: 12px;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border-top: 1px solid var(--cp-border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--cp-border);
+      vertical-align: middle;
+      font-size: 13px;
+    }
+
+    th {
+      color: var(--cp-text-muted);
+      background: var(--cp-surface-soft);
+      font-size: 12px;
+      font-weight: 700;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tr {
+      cursor: pointer;
+    }
+
+    tr:hover td,
+    tr.active td {
+      background: var(--cp-accent-soft);
+    }
+
+    .project-name {
+      font-weight: 700;
+      max-width: 280px;
+    }
+
+    .muted {
+      color: var(--cp-text-muted);
+    }
+
+    .score-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 130px;
+    }
+
+    .score-ring {
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: conic-gradient(var(--ring-color) var(--ring-deg), var(--cp-surface-soft) 0deg);
+      border: 1px solid var(--cp-border);
+      flex: 0 0 auto;
+    }
+
+    .score-ring span {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: var(--cp-surface);
+      color: var(--cp-text);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 24px;
+      border-radius: 0.625rem;
+      border: 1px solid var(--cp-border);
+      padding: 3px 8px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      background: var(--cp-surface-soft);
+      color: var(--cp-text);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--badge-color);
+      flex: 0 0 auto;
+    }
+
+    .bars {
+      padding: 0 16px 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 116px minmax(0, 1fr) 42px;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+    }
+
+    .bar-track {
+      height: 10px;
+      background: var(--cp-surface-soft);
+      border: 1px solid var(--cp-border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: var(--value);
+      background: var(--bar-color);
+      border-radius: 999px;
+    }
+
+    .detail-panel {
+      position: sticky;
+      top: 16px;
+      overflow: hidden;
+    }
+
+    .detail-body {
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .detail-title {
+      margin: 0 0 8px;
+      font-size: 22px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .detail-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--cp-text-muted);
+      font-size: 12px;
+    }
+
+    .dimension-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .dimension {
+      padding: 12px;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-surface-soft);
+    }
+
+    .dimension-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: var(--cp-text-muted);
+    }
+
+    .dimension-score {
+      color: var(--cp-text);
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .insight-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .insight-list li {
+      display: grid;
+      grid-template-columns: 8px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+      color: var(--cp-text-muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .insight-list li::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      margin-top: 6px;
+      border-radius: 999px;
+      background: var(--cp-accent);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0 16px 16px;
+    }
+
+    .formula {
+      padding: 14px 16px;
+      margin-top: 16px;
+      color: var(--cp-text-muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .empty {
+      padding: 32px 16px;
+      color: var(--cp-text-muted);
+      text-align: center;
+    }
+
+    @media (max-width: 1100px) {
+      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .main-grid { grid-template-columns: 1fr; }
+      .detail-panel { position: static; }
+    }
+
+    @media (max-width: 720px) {
+      .app-shell { padding: 16px; }
+      .topbar { flex-direction: column; }
+      .toolbar { justify-content: flex-start; width: 100%; }
+      .control { width: 100%; }
+      .summary-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 26px; }
+      .dimension-grid { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      .toolbar { display: none; }
+      .app-shell { max-width: none; padding: 16px; }
+      .detail-panel { position: static; }
+      body { background: var(--cp-bg); }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <section class="topbar">
+      <div>
+        <p class="eyebrow">Dynamics 365 Project Operations</p>
+        <h1>项目健康度 Dashboard</h1>
+        <p class="subtitle">基于当前 Dataverse 项目数据，综合项目计划、项目成本、风险/问题、执行进展和数据完整性，对项目组合健康度进行评分和分层。当前页面使用 MCP 查询返回的 12 个项目记录生成。</p>
+      </div>
+      <div class="toolbar" aria-label="Dashboard controls">
+        <input class="control" id="searchInput" type="search" placeholder="搜索项目" />
+        <select class="control" id="statusFilter" aria-label="健康度筛选">
+          <option value="all">全部健康度</option>
+          <option value="healthy">健康</option>
+          <option value="watch">关注</option>
+          <option value="risk">风险</option>
+        </select>
+        <select class="control" id="stageFilter" aria-label="阶段筛选">
+          <option value="all">全部阶段</option>
+        </select>
+        <button class="btn primary" id="printBtn" type="button">打印 / 导出 PDF</button>
+      </div>
+    </section>
+
+    <section class="summary-grid" id="summaryGrid" aria-label="Portfolio summary"></section>
+
+    <section class="main-grid">
+      <article class="card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">项目组合健康度</h2>
+            <p class="panel-note">点击任一项目查看维度评分和建议动作</p>
+          </div>
+          <p class="panel-note" id="resultCount"></p>
+        </div>
+        <div class="legend" id="legend"></div>
+        <div class="table-wrap">
+          <table aria-label="Project health table">
+            <thead>
+              <tr>
+                <th>项目</th>
+                <th>综合评分</th>
+                <th>健康度</th>
+                <th>阶段 / 状态</th>
+                <th>进度</th>
+                <th>成本</th>
+                <th>风险/问题</th>
+                <th>WBS / 工时</th>
+              </tr>
+            </thead>
+            <tbody id="projectRows"></tbody>
+          </table>
+          <div class="empty" id="emptyState" hidden>没有符合筛选条件的项目。</div>
+        </div>
+      </article>
+
+      <aside class="card detail-panel" aria-label="Project detail">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">项目诊断</h2>
+            <p class="panel-note">当前选中项目</p>
+          </div>
+        </div>
+        <div class="detail-body" id="detailBody"></div>
+      </aside>
+    </section>
+
+    <section class="card formula">
+      <strong>评分模型：</strong>
+      综合健康度 = 计划 30% + 成本 25% + 风险/问题 20% + 执行 15% + 数据完整性 10%。计划维度参考 `msdyn_scheduleperformance`、`proj_schedulehealth`、日期和进度；成本维度参考 `msdyn_costperformence`、计划/实际成本和任务成本；风险/问题维度参考 `proj_activerisks`、`proj_activeissues`、`proj_issuehealth`；执行维度参考 WBS、工时、完成工时和项目进度；数据完整性维度参考计划日期、结束日期、客户、WBS 和健康度字段是否完整。
+    </section>
+  </main>
+
+  <script>
+    const projects = [
+      { id: "584cd057-8c1f-f111-88b1-000d3a091f8a", name: "CRO-PH1-DEMO — Phase I Clinical Trial", start: "2026-04-01", finish: "2026-04-01", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 0, actualCost: 0, remainingCost: null, overall: "On Track", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Not set", state: "Proposed", customer: false },
+      { id: "c669df37-28e1-f011-8406-000d3ac839eb", name: "越南挖掘机需求-2026Q1", start: "2025-12-25", finish: null, progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 0, actualCost: 0, remainingCost: null, overall: "On Track", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Create", state: "Active", customer: true },
+      { id: "4299c88f-f151-f111-bec6-6045bd1ffe1f", name: "越南挖掘机需求-2026Q1", start: "2025-12-25", finish: null, progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 0, actualCost: 0, remainingCost: null, overall: "On Track", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Create", state: "Active", customer: false },
+      { id: "4efca831-f251-f111-bec6-000d3a08a964", name: "医疗设备项目-DEMO", start: "2026-06-15", finish: "2026-08-15", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 0, actualCost: 0, remainingCost: null, overall: "On Track", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Not set", state: "Proposed", customer: true },
+      { id: "9d17c833-bb5d-f111-a825-000d3ac6ed0d", name: "ICU Medical Device Installation Project", start: "2026-06-01", finish: "2026-06-01", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 0, actualCost: 0, remainingCost: null, overall: "On Track", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "High", stage: "Not set", state: "Proposed", customer: false },
+      { id: "26fbb122-841d-41e3-9394-e6f7f3286ab9", name: "demo project - import WBS", start: "2026-06-06", finish: "2026-06-06", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 0, actualCost: 0, remainingCost: null, overall: "On Track", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Not set", state: "Proposed", customer: true },
+      { id: "79754241-80fa-4ce8-aacc-1a126534d9d6", name: "demo for copy wbs", start: "2026-06-06", finish: "2026-07-10", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 0, actualCost: 0, remainingCost: 0, overall: "On Track", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Not set", state: "Proposed", customer: true },
+      { id: "3700a1a6-73d1-4100-b2d6-c735ae5b4560", name: "欧洲大区挖掘机需求-销售项目", start: "2026-01-05", finish: "2026-01-19", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 28365, actualCost: 0, remainingCost: 28365, overall: "Green", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 1, issues: 0, changes: 0, priority: "Moderate", stage: "Select", state: "Proposed", customer: true },
+      { id: "588c3c7b-e704-4832-8520-897a1a919e10", name: "demo for wbs import from MPP file", start: "2026-06-05", finish: null, progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 0, actualCost: 0, remainingCost: null, overall: "On Track", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Not set", state: "Proposed", customer: false },
+      { id: "6ed32786-3251-f111-bec6-6045bd1ffe1f", name: "ICU设备一体化解决方案项目 - Adventure Works", start: "2026-05-31", finish: "2026-07-06", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 0, actualCost: 0, remainingCost: 0, overall: "Green", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Not set", state: "Proposed", customer: true },
+      { id: "738d5918-2938-44b1-9070-565acd28e04f", name: "中山大学附属第一医院ICU项目", start: "2026-05-17", finish: "2026-07-07", progress: 0, schedule: "On Time", cost: "On Budget", plannedCost: 33465, actualCost: 0, remainingCost: 31365, overall: "Green", scheduleHealth: "On Track", financialHealth: "On Track", effortHealth: "On Track", issueHealth: "On Track", risks: 0, issues: 0, changes: 0, priority: "Moderate", stage: "Not set", state: "Proposed", customer: true },
+      { id: "ed77ced6-701d-4551-b802-3fb5871727dd", name: "Dynamics 365 Delivery Project for Microsoft", start: "2025-08-01", finish: "2025-11-11", progress: 0.4910714285, schedule: "On Time", cost: "Over Budget", plannedCost: 140240, actualCost: 1320, remainingCost: 139080, overall: "Green", scheduleHealth: null, financialHealth: null, effortHealth: null, issueHealth: null, risks: 0, issues: 0, changes: 0, priority: "Not set", stage: "Not set", state: "Not set", customer: true }
+    ];
+
+    const aggregates = {
+      "79754241-80fa-4ce8-aacc-1a126534d9d6": { tasks: 9, effort: 0, completedEffort: 0, remainingEffort: 0, taskPlannedCost: 0, taskActualCost: 0, timeEntries: 0, duration: 0, expenses: 0, expenseAmount: 0 },
+      "ed77ced6-701d-4551-b802-3fb5871727dd": { tasks: 17, effort: 2240, completedEffort: 11, remainingEffort: 2229, taskPlannedCost: 140240, taskActualCost: 1320, timeEntries: 16, duration: 5670, expenses: 0, expenseAmount: 0 },
+      "6ed32786-3251-f111-bec6-6045bd1ffe1f": { tasks: 9, effort: 0, completedEffort: 0, remainingEffort: 0, taskPlannedCost: 0, taskActualCost: 0, timeEntries: 0, duration: 0, expenses: 0, expenseAmount: 0 },
+      "738d5918-2938-44b1-9070-565acd28e04f": { tasks: 9, effort: 450, completedEffort: 0, remainingEffort: 450, taskPlannedCost: 35250, taskActualCost: 0, timeEntries: 2, duration: 720, expenses: 1, expenseAmount: 35.83575 },
+      "3700a1a6-73d1-4100-b2d6-c735ae5b4560": { tasks: 39, effort: 771, completedEffort: 0, remainingEffort: 771, taskPlannedCost: 85095, taskActualCost: 0, timeEntries: 64, duration: 70620, expenses: 0, expenseAmount: 0 }
+    };
+
+    const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    const today = new Date("2026-06-06T00:00:00");
+    let selectedId = projects[0].id;
+
+    function normalizeHealthName(value) {
+      if (!value) return "Not set";
+      if (value.includes("Off") || value === "Red" || value.includes("Over")) return "Off Track";
+      if (value.includes("Risk") || value === "Yellow" || value.includes("Behind")) return "At Risk";
+      if (value.includes("Track") || value === "Green" || value.includes("Time") || value.includes("Budget")) return "On Track";
+      return value;
+    }
+
+    function healthPoints(value) {
+      const normalized = normalizeHealthName(value);
+      if (normalized === "On Track") return 100;
+      if (normalized === "At Risk") return 65;
+      if (normalized === "Off Track") return 35;
+      return 70;
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function dateScore(project) {
+      if (!project.start || !project.finish) return 62;
+      const start = new Date(project.start + "T00:00:00");
+      const finish = new Date(project.finish + "T00:00:00");
+      if (finish < today && project.progress < 80) return 45;
+      if (start > finish) return 40;
+      return 90;
+    }
+
+    function costRatio(project, agg) {
+      const planned = project.plannedCost || agg.taskPlannedCost || 0;
+      const actual = project.actualCost || agg.taskActualCost || 0;
+      if (!planned) return actual > 0 ? 140 : 0;
+      return actual / planned;
+    }
+
+    function scoreProject(project) {
+      const agg = aggregates[project.id] || { tasks: 0, effort: 0, completedEffort: 0, remainingEffort: 0, taskPlannedCost: 0, taskActualCost: 0, timeEntries: 0, duration: 0, expenses: 0, expenseAmount: 0 };
+      const scheduleScore = Math.round((healthPoints(project.schedule) * 0.45) + (healthPoints(project.scheduleHealth) * 0.35) + (dateScore(project) * 0.2));
+      const ratio = costRatio(project, agg);
+      const costBase = project.cost === "Over Budget" ? 55 : healthPoints(project.cost || project.financialHealth);
+      const ratioScore = ratio === 0 ? 82 : ratio <= 1 ? 96 : ratio <= 1.1 ? 75 : 45;
+      const costScore = Math.round((costBase * 0.55) + (ratioScore * 0.45));
+      const riskPenalty = Math.min(55, (project.risks * 18) + (project.issues * 22) + (project.changes * 8));
+      const riskScore = clamp(Math.round((healthPoints(project.issueHealth) * 0.6) + ((100 - riskPenalty) * 0.4)), 0, 100);
+      const effortCompletion = agg.effort ? (agg.completedEffort / agg.effort) * 100 : project.progress;
+      const executionBase = agg.tasks ? 75 : 58;
+      const activityBoost = agg.timeEntries ? 12 : 0;
+      const executionScore = clamp(Math.round((executionBase * 0.45) + (healthPoints(project.effortHealth) * 0.25) + (Math.min(100, effortCompletion) * 0.2) + activityBoost), 0, 100);
+      const completenessItems = [project.start, project.finish, project.customer, project.overall, project.stage !== "Not set", agg.tasks > 0];
+      const completenessScore = Math.round((completenessItems.filter(Boolean).length / completenessItems.length) * 100);
+      const overallScore = Math.round((scheduleScore * 0.3) + (costScore * 0.25) + (riskScore * 0.2) + (executionScore * 0.15) + (completenessScore * 0.1));
+      return { ...project, ...agg, scheduleScore, costScore, riskScore, executionScore, completenessScore, overallScore, costRatio: ratio };
+    }
+
+    function statusOf(score) {
+      if (score >= 82) return { key: "healthy", label: "健康", color: "--cp-success" };
+      if (score >= 68) return { key: "watch", label: "关注", color: "--cp-warning" };
+      return { key: "risk", label: "风险", color: "--cp-danger" };
+    }
+
+    function formatCurrency(value) {
+      if (value === null || value === undefined) return "-";
+      return new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 0 }).format(value);
+    }
+
+    function formatPercent(value) {
+      if (value === null || value === undefined) return "-";
+      const normalized = value > 1 ? value : value * 100;
+      return `${Math.round(normalized)}%`;
+    }
+
+    function filteredProjects(scored) {
+      const query = document.getElementById("searchInput").value.trim().toLowerCase();
+      const status = document.getElementById("statusFilter").value;
+      const stage = document.getElementById("stageFilter").value;
+      return scored.filter((project) => {
+        const matchQuery = !query || project.name.toLowerCase().includes(query);
+        const matchStatus = status === "all" || statusOf(project.overallScore).key === status;
+        const matchStage = stage === "all" || project.stage === stage;
+        return matchQuery && matchStatus && matchStage;
+      });
+    }
+
+    function renderSummary(scored) {
+      const total = scored.length;
+      const average = Math.round(scored.reduce((sum, p) => sum + p.overallScore, 0) / Math.max(1, total));
+      const healthy = scored.filter((p) => statusOf(p.overallScore).key === "healthy").length;
+      const watch = scored.filter((p) => statusOf(p.overallScore).key === "watch").length;
+      const risk = scored.filter((p) => statusOf(p.overallScore).key === "risk").length;
+      const totalRisks = scored.reduce((sum, p) => sum + p.risks + p.issues, 0);
+      const summary = [
+        { label: "项目总数", value: total, note: "当前查询批次" },
+        { label: "平均健康分", value: average, note: "组合综合评分" },
+        { label: "健康项目", value: healthy, note: "评分 82 分及以上" },
+        { label: "需要关注", value: watch, note: "评分 68 至 81 分" },
+        { label: "风险/问题", value: totalRisks || risk, note: totalRisks ? "活跃风险与问题数量" : "低分项目数量" }
+      ];
+      document.getElementById("summaryGrid").innerHTML = summary.map((item) => `
+        <article class="card metric-card">
+          <div class="metric-label">${item.label}</div>
+          <div class="metric-value">${item.value}</div>
+          <div class="metric-note">${item.note}</div>
+        </article>
+      `).join("");
+    }
+
+    function renderLegend() {
+      const items = [
+        { label: "健康", color: "--cp-success" },
+        { label: "关注", color: "--cp-warning" },
+        { label: "风险", color: "--cp-danger" },
+        { label: "当前没有审批聚合记录", color: "--cp-accent" }
+      ];
+      document.getElementById("legend").innerHTML = items.map((item) => `
+        <span class="badge"><span class="dot" style="--badge-color: var(${item.color})"></span>${item.label}</span>
+      `).join("");
+    }
+
+    function renderTable(scored) {
+      const rows = filteredProjects(scored);
+      document.getElementById("resultCount").textContent = `${rows.length} / ${scored.length} 个项目`;
+      document.getElementById("emptyState").hidden = rows.length > 0;
+      document.getElementById("projectRows").innerHTML = rows.map((project) => {
+        const status = statusOf(project.overallScore);
+        const ringDeg = `${project.overallScore * 3.6}deg`;
+        const costText = project.plannedCost || project.actualCost ? `${formatCurrency(project.actualCost)} / ${formatCurrency(project.plannedCost)}` : project.cost;
+        return `
+          <tr class="${project.id === selectedId ? "active" : ""}" data-id="${project.id}">
+            <td><div class="project-name">${project.name}</div><div class="muted">${project.priority} · ${project.state}</div></td>
+            <td>
+              <div class="score-cell">
+                <div class="score-ring" style="--ring-color: var(${status.color}); --ring-deg: ${ringDeg}"><span>${project.overallScore}</span></div>
+                <span class="muted">/ 100</span>
+              </div>
+            </td>
+            <td><span class="badge"><span class="dot" style="--badge-color: var(${status.color})"></span>${status.label}</span></td>
+            <td>${project.stage}<div class="muted">${project.start || "-"} 至 ${project.finish || "未设置"}</div></td>
+            <td>${formatPercent(project.progress)}</td>
+            <td>${costText}<div class="muted">${project.cost}</div></td>
+            <td>${project.risks} 风险 / ${project.issues} 问题</td>
+            <td>${project.tasks || 0} 任务 / ${project.timeEntries || 0} 工时记录</td>
+          </tr>
+        `;
+      }).join("");
+      document.querySelectorAll("#projectRows tr").forEach((row) => {
+        row.addEventListener("click", () => {
+          selectedId = row.dataset.id;
+          render(scored);
+        });
+      });
+    }
+
+    function bar(label, value, color) {
+      return `
+        <div class="bar-row">
+          <span>${label}</span>
+          <div class="bar-track"><div class="bar-fill" style="--value: ${clamp(value, 0, 100)}%; --bar-color: var(${color})"></div></div>
+          <strong>${value}</strong>
+        </div>
+      `;
+    }
+
+    function insights(project) {
+      const notes = [];
+      if (project.cost === "Over Budget") notes.push("成本表现标记为 Over Budget，需要复核预算、实际成本和成本确认逻辑。");
+      if (!project.finish) notes.push("计划完成日期缺失，建议补齐以提升计划健康度判断质量。");
+      if (!project.customer) notes.push("客户字段未设置，建议补齐项目商业上下文。");
+      if (!project.tasks) notes.push("未查询到 WBS 任务，执行维度以项目头信息为主，建议导入或维护项目计划。");
+      if (project.risks > 0 || project.issues > 0) notes.push(`当前存在 ${project.risks} 个风险和 ${project.issues} 个问题，建议纳入周会跟踪。`);
+      if (project.tasks && !project.timeEntries) notes.push("已有 WBS 但暂无工时记录，可检查项目团队是否开始提交工时。");
+      if (!notes.length) notes.push("项目当前指标整体稳定，可继续按计划跟踪进度、成本和风险变化。");
+      return notes;
+    }
+
+    function renderDetail(scored) {
+      const project = scored.find((item) => item.id === selectedId) || scored[0];
+      const status = statusOf(project.overallScore);
+      document.getElementById("detailBody").innerHTML = `
+        <div>
+          <h3 class="detail-title">${project.name}</h3>
+          <div class="detail-meta">
+            <span>${project.stage}</span>
+            <span>${project.state}</span>
+            <span>${project.start || "-"} 至 ${project.finish || "未设置"}</span>
+          </div>
+        </div>
+        <div class="score-cell">
+          <div class="score-ring" style="--ring-color: var(${status.color}); --ring-deg: ${project.overallScore * 3.6}deg"><span>${project.overallScore}</span></div>
+          <span class="badge"><span class="dot" style="--badge-color: var(${status.color})"></span>${status.label}</span>
+        </div>
+        <div class="dimension-grid">
+          <div class="dimension"><div class="dimension-top"><span>计划</span><span class="dimension-score">${project.scheduleScore}</span></div><div class="muted">${project.schedule || "-"} · ${project.scheduleHealth || "Not set"}</div></div>
+          <div class="dimension"><div class="dimension-top"><span>成本</span><span class="dimension-score">${project.costScore}</span></div><div class="muted">${project.cost || "-"} · ${formatCurrency(project.actualCost)} / ${formatCurrency(project.plannedCost)}</div></div>
+          <div class="dimension"><div class="dimension-top"><span>风险/问题</span><span class="dimension-score">${project.riskScore}</span></div><div class="muted">${project.risks} 风险 · ${project.issues} 问题 · ${project.changes} 变更</div></div>
+          <div class="dimension"><div class="dimension-top"><span>执行</span><span class="dimension-score">${project.executionScore}</span></div><div class="muted">${project.tasks || 0} 任务 · ${project.timeEntries || 0} 工时记录</div></div>
+        </div>
+        <div class="bars">
+          ${bar("计划", project.scheduleScore, "--cp-success")}
+          ${bar("成本", project.costScore, project.costScore >= 68 ? "--cp-success" : "--cp-danger")}
+          ${bar("风险/问题", project.riskScore, project.riskScore >= 82 ? "--cp-success" : "--cp-warning")}
+          ${bar("执行", project.executionScore, project.executionScore >= 68 ? "--cp-success" : "--cp-warning")}
+          ${bar("数据完整性", project.completenessScore, project.completenessScore >= 80 ? "--cp-success" : "--cp-warning")}
+        </div>
+        <div>
+          <h3 class="panel-title">建议关注点</h3>
+          <ul class="insight-list">${insights(project).map((item) => `<li>${item}</li>`).join("")}</ul>
+        </div>
+      `;
+    }
+
+    function populateStageFilter(scored) {
+      const select = document.getElementById("stageFilter");
+      const current = select.value;
+      const stages = [...new Set(scored.map((project) => project.stage))].sort();
+      select.innerHTML = `<option value="all">全部阶段</option>${stages.map((stage) => `<option value="${stage}">${stage}</option>`).join("")}`;
+      select.value = stages.includes(current) ? current : "all";
+    }
+
+    function render(existingScored) {
+      const scored = existingScored || projects.map(scoreProject).sort((a, b) => a.overallScore - b.overallScore);
+      populateStageFilter(scored);
+      renderSummary(scored);
+      renderLegend();
+      renderTable(scored);
+      renderDetail(scored);
+    }
+
+    document.getElementById("searchInput").addEventListener("input", () => render());
+    document.getElementById("statusFilter").addEventListener("change", () => render());
+    document.getElementById("stageFilter").addEventListener("change", () => render());
+    document.getElementById("printBtn").addEventListener("click", () => window.print());
+
+    render();
+  </script>
+</body>
+</html>
