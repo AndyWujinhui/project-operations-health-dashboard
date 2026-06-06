@@ -156,6 +156,150 @@
       margin-bottom: 16px;
     }
 
+    .app-tabs {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px;
+      margin-bottom: 16px;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-surface);
+      box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+    }
+
+    .tab-btn {
+      min-height: 36px;
+      border: 0;
+      border-radius: 0.625rem;
+      background: transparent;
+      color: var(--cp-text-muted);
+      padding: 7px 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .tab-btn.active {
+      background: var(--cp-accent);
+      color: var(--cp-accent-fg);
+    }
+
+    .view { display: none; }
+
+    .view.active { display: block; }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(360px, 0.42fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .overview-stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .portfolio-panel {
+      padding: 16px;
+    }
+
+    .section-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .section-title-row h2,
+    .section-title-row h3 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    .health-distribution {
+      display: grid;
+      gap: 12px;
+    }
+
+    .distribution-row {
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr) 42px;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .project-strip {
+      display: grid;
+      gap: 10px;
+    }
+
+    .project-tile {
+      display: grid;
+      gap: 8px;
+      width: 100%;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-surface-soft);
+      color: var(--cp-text);
+      padding: 12px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .project-tile:hover,
+    .project-tile.active {
+      border-color: var(--cp-border-strong);
+      background: var(--cp-accent-soft);
+    }
+
+    .tile-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .tile-name {
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .tile-meta {
+      color: var(--cp-text-muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .insight-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .insight-card {
+      padding: 14px;
+      border: 1px solid var(--cp-border);
+      border-radius: 0.625rem;
+      background: var(--cp-surface-soft);
+    }
+
+    .insight-number {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .mini-action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
     .card {
       background: var(--cp-surface);
       border: 1px solid var(--cp-border);
@@ -450,6 +594,8 @@
 
     @media (max-width: 1100px) {
       .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .overview-grid { grid-template-columns: 1fr; }
+      .insight-grid { grid-template-columns: 1fr; }
       .main-grid { grid-template-columns: 1fr; }
       .detail-panel { position: static; }
     }
@@ -459,6 +605,7 @@
       .topbar { flex-direction: column; }
       .toolbar { justify-content: flex-start; width: 100%; }
       .control { width: 100%; }
+      .app-tabs { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .summary-grid { grid-template-columns: 1fr; }
       h1 { font-size: 26px; }
       .dimension-grid { grid-template-columns: 1fr; }
@@ -495,10 +642,50 @@
       </div>
     </section>
 
-    <section class="summary-grid" id="summaryGrid" aria-label="Portfolio summary"></section>
+    <nav class="app-tabs" aria-label="Dashboard views">
+      <button class="tab-btn active" type="button" data-view="overview">Overview</button>
+      <button class="tab-btn" type="button" data-view="details">Details</button>
+    </nav>
 
-    <section class="main-grid">
-      <article class="card">
+    <section class="view active" id="overviewView" aria-label="Overview">
+      <section class="summary-grid" id="summaryGrid" aria-label="Portfolio summary"></section>
+      <section class="overview-grid">
+        <div class="overview-stack">
+          <article class="card portfolio-panel">
+            <div class="section-title-row">
+              <div>
+                <h2 class="panel-title">项目组合 Overview</h2>
+                <p class="panel-note">健康分布、预算偏差、风险负载和执行成熟度</p>
+              </div>
+              <button class="btn" id="openDetailsBtn" type="button">查看 Details</button>
+            </div>
+            <div class="insight-grid" id="portfolioInsights"></div>
+          </article>
+          <article class="card portfolio-panel">
+            <div class="section-title-row">
+              <div>
+                <h2 class="panel-title">健康度分布</h2>
+                <p class="panel-note">按综合评分自动分层</p>
+              </div>
+            </div>
+            <div class="health-distribution" id="healthDistribution"></div>
+          </article>
+        </div>
+        <aside class="card portfolio-panel">
+          <div class="section-title-row">
+            <div>
+              <h2 class="panel-title">重点项目</h2>
+              <p class="panel-note">按风险和低分优先排序</p>
+            </div>
+          </div>
+          <div class="project-strip" id="priorityProjects"></div>
+        </aside>
+      </section>
+    </section>
+
+    <section class="view" id="detailsView" aria-label="Details">
+      <section class="main-grid">
+        <article class="card">
         <div class="panel-header">
           <div>
             <h2 class="panel-title">项目组合健康度</h2>
@@ -525,9 +712,9 @@
           </table>
           <div class="empty" id="emptyState" hidden>没有符合筛选条件的项目。</div>
         </div>
-      </article>
+        </article>
 
-      <aside class="card detail-panel" aria-label="Project detail">
+        <aside class="card detail-panel" aria-label="Project detail">
         <div class="panel-header">
           <div>
             <h2 class="panel-title">项目诊断</h2>
@@ -535,7 +722,8 @@
           </div>
         </div>
         <div class="detail-body" id="detailBody"></div>
-      </aside>
+        </aside>
+      </section>
     </section>
 
     <section class="card formula">
@@ -573,6 +761,7 @@
     const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
     const today = new Date("2026-06-06T00:00:00");
     let selectedId = projects[0].id;
+    let activeView = "overview";
 
     function normalizeHealthName(value) {
       if (!value) return "Not set";
@@ -679,6 +868,85 @@
           <div class="metric-note">${item.note}</div>
         </article>
       `).join("");
+    }
+
+    function renderPortfolioInsights(scored) {
+      const totalBudget = scored.reduce((sum, project) => sum + (project.plannedCost || 0), 0);
+      const totalForecast = scored.reduce((sum, project) => sum + (project.actualCost || 0), 0);
+      const totalTimeEntries = scored.reduce((sum, project) => sum + (project.timeEntries || 0), 0);
+      const totalExpenses = scored.reduce((sum, project) => sum + (project.expenses || 0), 0);
+      const projectsWithoutFinish = scored.filter((project) => !project.finish).length;
+      const budgetVariance = totalForecast - totalBudget;
+      const varianceLabel = budgetVariance >= 0 ? `+${formatCurrency(budgetVariance)}` : formatCurrency(budgetVariance);
+      const insights = [
+        { label: "Budget Variance", value: varianceLabel, note: `Forecast ${formatCurrency(totalForecast)} / Budget ${formatCurrency(totalBudget)}` },
+        { label: "Execution Signals", value: totalTimeEntries, note: `${totalExpenses} expense records and ${totalTimeEntries} time entries` },
+        { label: "Data Quality", value: projectsWithoutFinish, note: "projects missing planned finish date" }
+      ];
+      document.getElementById("portfolioInsights").innerHTML = insights.map((item) => `
+        <div class="insight-card">
+          <span class="insight-number">${item.value}</span>
+          <div class="metric-label">${item.label}</div>
+          <div class="metric-note">${item.note}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderHealthDistribution(scored) {
+      const buckets = [
+        { key: "healthy", label: "健康", color: "--cp-success" },
+        { key: "watch", label: "关注", color: "--cp-warning" },
+        { key: "risk", label: "风险", color: "--cp-danger" }
+      ];
+      const total = Math.max(1, scored.length);
+      document.getElementById("healthDistribution").innerHTML = buckets.map((bucket) => {
+        const count = scored.filter((project) => statusOf(project.overallScore).key === bucket.key).length;
+        const percent = Math.round((count / total) * 100);
+        return `
+          <button class="project-tile" type="button" data-filter="${bucket.key}">
+            <div class="distribution-row">
+              <span>${bucket.label}</span>
+              <div class="bar-track"><div class="bar-fill" style="--value: ${percent}%; --bar-color: var(${bucket.color})"></div></div>
+              <strong>${count}</strong>
+            </div>
+          </button>
+        `;
+      }).join("");
+      document.querySelectorAll("[data-filter]").forEach((button) => {
+        button.addEventListener("click", () => {
+          document.getElementById("statusFilter").value = button.dataset.filter;
+          setView("details");
+          render(scored);
+        });
+      });
+    }
+
+    function renderPriorityProjects(scored) {
+      const priority = [...scored]
+        .sort((a, b) => ((b.risks + b.issues) - (a.risks + a.issues)) || (a.overallScore - b.overallScore))
+        .slice(0, 5);
+      document.getElementById("priorityProjects").innerHTML = priority.map((project) => {
+        const status = statusOf(project.overallScore);
+        const variance = (project.actualCost || 0) - (project.plannedCost || 0);
+        const varianceLabel = variance >= 0 ? `+${formatCurrency(variance)}` : formatCurrency(variance);
+        return `
+          <button class="project-tile ${project.id === selectedId ? "active" : ""}" type="button" data-project="${project.id}">
+            <div class="tile-top">
+              <span class="tile-name">${project.name}</span>
+              <span class="badge"><span class="dot" style="--badge-color: var(${status.color})"></span>${project.overallScore}</span>
+            </div>
+            <div class="tile-meta">${project.risks} risks · ${project.issues} issues · Budget variance ${varianceLabel}</div>
+            <div class="tile-meta">${project.tasks || 0} WBS tasks · ${project.timeEntries || 0} time entries · ${project.expenses || 0} expenses</div>
+          </button>
+        `;
+      }).join("");
+      document.querySelectorAll("[data-project]").forEach((button) => {
+        button.addEventListener("click", () => {
+          selectedId = button.dataset.project;
+          setView("details");
+          render(scored);
+        });
+      });
     }
 
     function renderLegend() {
@@ -797,11 +1065,27 @@
       const scored = existingScored || projects.map(scoreProject).sort((a, b) => a.overallScore - b.overallScore);
       populateStageFilter(scored);
       renderSummary(scored);
+      renderPortfolioInsights(scored);
+      renderHealthDistribution(scored);
+      renderPriorityProjects(scored);
       renderLegend();
       renderTable(scored);
       renderDetail(scored);
     }
 
+    function setView(view) {
+      activeView = view;
+      document.querySelectorAll(".tab-btn").forEach((button) => {
+        button.classList.toggle("active", button.dataset.view === view);
+      });
+      document.getElementById("overviewView").classList.toggle("active", view === "overview");
+      document.getElementById("detailsView").classList.toggle("active", view === "details");
+    }
+
+    document.querySelectorAll(".tab-btn").forEach((button) => {
+      button.addEventListener("click", () => setView(button.dataset.view));
+    });
+    document.getElementById("openDetailsBtn").addEventListener("click", () => setView("details"));
     document.getElementById("searchInput").addEventListener("input", () => render());
     document.getElementById("statusFilter").addEventListener("change", () => render());
     document.getElementById("stageFilter").addEventListener("change", () => render());
