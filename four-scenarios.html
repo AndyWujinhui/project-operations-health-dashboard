@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project Operations 四大客户 Demo 场景</title>
+  <script>
+    (() => {
+      const param = new URLSearchParams(window.location.search).get("clawpilotTheme");
+      const theme =
+        param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --cp-bg: #f7f4ef;
+      --cp-bg-elevated: #fcfbf8;
+      --cp-surface: #ffffff;
+      --cp-surface-soft: #f5f5f5;
+      --cp-border: #dedede;
+      --cp-border-strong: #919191;
+      --cp-text: #242424;
+      --cp-text-muted: #5c5c5c;
+      --cp-text-soft: #6f6f6f;
+      --cp-accent: #b11f4b;
+      --cp-accent-hover: #9a1a41;
+      --cp-accent-soft: rgba(177, 31, 75, 0.08);
+      --cp-accent-fg: #ffffff;
+      --cp-success: #16a34a;
+      --cp-danger: #dc2626;
+      --cp-warning: #f59e0b;
+      --cp-link: #0078d4;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+      --cp-overlay: rgba(255, 255, 255, 0.8);
+      --cp-panel: rgba(255, 255, 255, 0.86);
+      --cp-panel-strong: rgba(255, 255, 255, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.55);
+      --cp-highlight: rgba(177, 31, 75, 0.12);
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --cp-bg: #3d3b3a;
+      --cp-bg-elevated: #343231;
+      --cp-surface: #292929;
+      --cp-surface-soft: #2e2e2e;
+      --cp-border: #474747;
+      --cp-border-strong: #5f5f5f;
+      --cp-text: #dedede;
+      --cp-text-muted: #919191;
+      --cp-text-soft: #b0b0b0;
+      --cp-accent: #fd8ea1;
+      --cp-accent-hover: #fb7b91;
+      --cp-accent-soft: rgba(253, 142, 161, 0.14);
+      --cp-accent-fg: #1a1a1a;
+      --cp-success: #4ade80;
+      --cp-danger: #f87171;
+      --cp-warning: #fbbf24;
+      --cp-link: #4da6ff;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+      --cp-overlay: rgba(41, 41, 41, 0.88);
+      --cp-panel: rgba(41, 41, 41, 0.72);
+      --cp-panel-strong: rgba(41, 41, 41, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.04);
+      --cp-highlight: rgba(253, 142, 161, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--cp-bg);
+      color: var(--cp-text);
+      font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.5;
+      letter-spacing: 0;
+    }
+    button, a { font: inherit; }
+    button { cursor: pointer; }
+    a { color: var(--cp-link); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .page {
+      width: min(1360px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 22px 0 42px;
+    }
+
+    .hero,
+    .scenario-nav,
+    .panel,
+    .tile,
+    .metric,
+    .step,
+    .asset,
+    .preview {
+      background: var(--cp-surface);
+      border: 1px solid var(--cp-border);
+      border-radius: 8px;
+      box-shadow: 0 0 0 1px var(--cp-sheen);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(340px, .8fr);
+      gap: 24px;
+      align-items: center;
+      padding: 28px;
+      min-height: 286px;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--cp-accent);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      margin-bottom: 12px;
+      font-size: 38px;
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+    .lead {
+      margin-bottom: 0;
+      color: var(--cp-text-muted);
+      font-size: 17px;
+      max-width: 860px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      min-height: 94px;
+      padding: 14px;
+      background: var(--cp-surface-soft);
+    }
+    .metric strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 22px;
+      line-height: 1;
+    }
+    .metric span { color: var(--cp-text-muted); font-size: 13px; }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+      align-items: start;
+    }
+
+    .scenario-nav {
+      position: sticky;
+      top: 16px;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+      background: var(--cp-panel-strong);
+    }
+    .nav-button {
+      width: 100%;
+      min-height: 78px;
+      padding: 12px;
+      border: 1px solid var(--cp-border);
+      border-radius: 8px;
+      background: var(--cp-surface);
+      color: var(--cp-text);
+      text-align: left;
+      display: grid;
+      gap: 4px;
+    }
+    .nav-button b { font-size: 15px; line-height: 1.25; }
+    .nav-button span { color: var(--cp-text-muted); font-size: 12px; line-height: 1.35; }
+    .nav-button.active {
+      border-color: var(--cp-accent);
+      background: var(--cp-accent-soft);
+    }
+
+    .scenario {
+      display: none;
+      gap: 16px;
+    }
+    .scenario.active { display: grid; }
+
+    .panel { padding: 20px; }
+    .scenario-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: start;
+    }
+    h2 {
+      margin-bottom: 8px;
+      font-size: 28px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    .scenario-header p { margin-bottom: 0; color: var(--cp-text-muted); max-width: 850px; }
+
+    .badge-row { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+    .badge {
+      min-height: 28px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--cp-border);
+      background: var(--cp-surface-soft);
+      color: var(--cp-text-muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .badge.primary {
+      border-color: var(--cp-accent);
+      background: var(--cp-accent-soft);
+      color: var(--cp-text);
+      font-weight: 700;
+    }
+
+    .tile-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .tile {
+      min-height: 142px;
+      padding: 15px;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+    .tile h3 { margin-bottom: 0; font-size: 17px; letter-spacing: 0; }
+    .tile p { margin-bottom: 0; color: var(--cp-text-muted); font-size: 14px; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(var(--cols), minmax(132px, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .step {
+      min-height: 118px;
+      padding: 14px;
+      background: var(--cp-surface-soft);
+      display: grid;
+      align-content: start;
+      gap: 6px;
+    }
+    .step .number {
+      width: 28px;
+      height: 28px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--cp-accent);
+      color: var(--cp-accent-fg);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .step strong { font-size: 14px; line-height: 1.25; }
+    .step span { color: var(--cp-text-muted); font-size: 12px; line-height: 1.35; }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 16px;
+      margin-top: 16px;
+      align-items: stretch;
+    }
+
+    .asset-list { display: grid; gap: 10px; }
+    .asset {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px;
+      background: var(--cp-surface-soft);
+    }
+    .asset strong { display: block; margin-bottom: 3px; }
+    .asset span { color: var(--cp-text-muted); font-size: 13px; }
+    .asset a {
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--cp-border);
+      background: var(--cp-surface);
+      color: var(--cp-link);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .script-list {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--cp-text-muted);
+    }
+    .script-list li { margin: 8px 0; }
+
+    .preview {
+      padding: 14px;
+      background: var(--cp-surface-soft);
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 10px;
+      min-height: 300px;
+    }
+    .preview h3 { margin: 0; font-size: 16px; }
+    .preview-frame {
+      border: 1px solid var(--cp-border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--cp-surface);
+      min-height: 220px;
+    }
+    .preview-frame iframe {
+      width: 100%;
+      height: 100%;
+      min-height: 220px;
+      border: 0;
+    }
+    .mock-app {
+      min-height: 220px;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .mock-bar, .mock-row, .mock-card {
+      border: 1px solid var(--cp-border);
+      border-radius: 8px;
+      background: var(--cp-surface-soft);
+    }
+    .mock-bar { height: 34px; }
+    .mock-row { height: 42px; }
+    .mock-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .mock-card { height: 68px; }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 16px;
+      padding: 12px 14px;
+      border: 1px solid var(--cp-border);
+      border-radius: 8px;
+      background: var(--cp-panel-strong);
+    }
+    .toolbar p { margin: 0; color: var(--cp-text-muted); font-size: 13px; }
+    .toolbar button {
+      min-height: 36px;
+      padding: 6px 12px;
+      border: 1px solid var(--cp-accent);
+      border-radius: 8px;
+      background: var(--cp-accent);
+      color: var(--cp-accent-fg);
+      font-weight: 700;
+    }
+
+    @media (max-width: 1100px) {
+      .hero, .workspace, .two-col { grid-template-columns: 1fr; }
+      .scenario-nav { position: static; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .tile-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 720px) {
+      .page { width: min(100% - 24px, 1360px); padding-top: 12px; }
+      .hero, .panel { padding: 16px; }
+      h1 { font-size: 28px; }
+      h2 { font-size: 23px; }
+      .hero-grid, .scenario-nav, .tile-grid, .flow, .scenario-header, .asset { grid-template-columns: 1fr; }
+      .badge-row { justify-content: flex-start; }
+      .toolbar { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">Dynamics 365 Project Operations Customer Demo</p>
+        <h1 id="page-title">Project Operations 四大客户场景导航</h1>
+        <p class="lead">围绕项目型业务的售前、交付、协作、健康度和 AI 能力，用一个可交互页面串联客户 demo。每个场景都可以独立讲，也可以按端到端旅程串起来展示。</p>
+      </div>
+      <div class="hero-grid" aria-label="Demo summary">
+        <div class="metric"><strong>01</strong><span>M365、Teams、Power Apps、SharePoint 协作整合</span></div>
+        <div class="metric"><strong>02</strong><span>项目进度、预算、风险和问题综合健康度</span></div>
+        <div class="metric"><strong>03</strong><span>Copilot、WBS 生成、项目报告和 Agent 能力</span></div>
+        <div class="metric"><strong>04</strong><span>CRM 到 Project Contract 和项目交付闭环</span></div>
+      </div>
+    </section>
+
+    <main class="workspace">
+      <nav class="scenario-nav" aria-label="Scenario navigation">
+        <button class="nav-button active" type="button" data-scenario="m365">
+          <b>1. M365 & Power Apps 整合</b>
+          <span>Teams、Power BI、Power Apps、SharePoint、Project Agent</span>
+        </button>
+        <button class="nav-button" type="button" data-scenario="health">
+          <b>2. 项目健康度 Dashboard</b>
+          <span>进度、预算实际、风险、问题、项目组合评分</span>
+        </button>
+        <button class="nav-button" type="button" data-scenario="ai">
+          <b>3. Project AI 能力</b>
+          <span>标准 Copilot、WBS、报告、风险预警、Agent</span>
+        </button>
+        <button class="nav-button" type="button" data-scenario="crm">
+          <b>4. CRM 到项目交付</b>
+          <span>Lead、Opportunity、Quote、Contract、Project</span>
+        </button>
+      </nav>
+
+      <section class="scenario active" id="scenario-m365" aria-label="M365 and Power Apps integration">
+        <div class="panel">
+          <div class="scenario-header">
+            <div>
+              <h2>Project Operations 与 M365 & Power Apps 的整合</h2>
+              <p>把项目交付工作从 Project Operations 延伸到 Teams 日常协作空间，让项目经理和成员在 Teams、Power Apps、SharePoint 和 Power BI 中完成查看、协作、文档和沟通。</p>
+            </div>
+            <div class="badge-row">
+              <span class="badge primary">Collaboration</span>
+              <span class="badge">Teams</span>
+              <span class="badge">Power Platform</span>
+            </div>
+          </div>
+          <div class="tile-grid">
+            <article class="tile"><h3>Power BI report 嵌入 Teams</h3><p>在项目 channel 中直接查看项目组合、项目健康度、预算消耗和风险问题，无需离开 Teams。</p></article>
+            <article class="tile"><h3>Power Apps 嵌入 Project Operations</h3><p>把轻量项目工作台、健康度页面或客户定制操作作为内嵌体验提供给项目角色。</p></article>
+            <article class="tile"><h3>SharePoint 文档管理</h3><p>项目启动后自动生成文档空间，沉淀合同、交付文档、会议纪要和验收材料。</p></article>
+          </div>
+          <div class="flow" style="--cols: 5">
+            <div class="step"><span class="number">1</span><strong>创建项目</strong><span>项目在 Project Operations 中激活，明确项目经理、客户、日期和预算。</span></div>
+            <div class="step"><span class="number">2</span><strong>发布到 Teams</strong><span>生成项目 Team 或 Channel，项目经理成为 owner，项目成员成为 member。</span></div>
+            <div class="step"><span class="number">3</span><strong>连接文档</strong><span>SharePoint 项目目录作为合同、交付物、验收文件的统一入口。</span></div>
+            <div class="step"><span class="number">4</span><strong>嵌入应用</strong><span>Power BI 和 Power Apps 作为 Teams tab 或项目内嵌页面提供业务操作。</span></div>
+            <div class="step"><span class="number">5</span><strong>Agent 协作</strong><span>Project Agent / Cowork 发布到 Teams，支持项目概览、提醒和自然语言查询。</span></div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="panel">
+            <h3>客户讲解重点</h3>
+            <ol class="script-list">
+              <li>客户不需要在多个系统之间来回切换，项目相关的沟通、文档、报表和操作都可以进入 Teams 工作流。</li>
+              <li>Project Operations 仍然是项目主数据和交付管控核心，Teams 和 Power Platform 是面向日常协作的入口。</li>
+              <li>通过项目角色动态决定可见内容，项目经理、项目成员和非项目成员看到的体验不同。</li>
+            </ol>
+          </div>
+          <div class="preview">
+            <h3>演示画面示意</h3>
+            <div class="preview-frame">
+              <div class="mock-app" aria-label="Teams workspace mockup">
+                <div class="mock-bar"></div>
+                <div class="mock-cards"><div class="mock-card"></div><div class="mock-card"></div><div class="mock-card"></div></div>
+                <div class="mock-row"></div><div class="mock-row"></div><div class="mock-row"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="scenario" id="scenario-health" aria-label="Project health dashboard">
+        <div class="panel">
+          <div class="scenario-header">
+            <div>
+              <h2>项目健康度 Dashboard</h2>
+              <p>用项目进度、预算与实际、风险和问题综合评价项目健康度，帮助管理层优先关注需要干预的项目，而不是只看单一状态字段。</p>
+            </div>
+            <div class="badge-row">
+              <span class="badge primary">Portfolio Health</span>
+              <span class="badge">Budget</span>
+              <span class="badge">Risk</span>
+            </div>
+          </div>
+          <div class="tile-grid">
+            <article class="tile"><h3>进度健康度</h3><p>结合计划开始/结束、进度百分比、关键任务和延期风险，识别交付节奏问题。</p></article>
+            <article class="tile"><h3>成本健康度</h3><p>比较预算、预测、实际成本、剩余成本和费用趋势，判断是否可能超预算。</p></article>
+            <article class="tile"><h3>风险与问题健康度</h3><p>将 active risks、active issues、change requests 纳入评分，避免只看进度和成本。</p></article>
+          </div>
+          <div class="flow" style="--cols: 4">
+            <div class="step"><span class="number">1</span><strong>采集项目数据</strong><span>读取 Project Operations 中项目、任务、预算、工时、费用、风险和问题。</span></div>
+            <div class="step"><span class="number">2</span><strong>计算健康分</strong><span>按进度、预算、资源、审批、风险问题加权生成综合评分。</span></div>
+            <div class="step"><span class="number">3</span><strong>分层管理</strong><span>按 On Track、At Risk、Off Track 生成管理层视图和项目优先级。</span></div>
+            <div class="step"><span class="number">4</span><strong>钻取项目</strong><span>从 overview 进入 detail，查看每个项目的健康度构成和改进方向。</span></div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="panel asset-list">
+            <div class="asset">
+              <div><strong>Project Operations Health Dashboard</strong><span>公开可访问的交互式项目健康度页面。</span></div>
+              <a href="https://andywujinhui.github.io/project-operations-health-dashboard/" target="_blank" rel="noopener">Open</a>
+            </div>
+            <div class="asset">
+              <div><strong>Dashboard iframe wrapper</strong><span>用于嵌入其他页面或投屏容器。</span></div>
+              <a href="Project-Operations-Health-Dashboard-Iframe.html" target="_blank" rel="noopener">Open local</a>
+            </div>
+          </div>
+          <div class="preview">
+            <h3>Live Dashboard Preview</h3>
+            <div class="preview-frame">
+              <iframe title="Project Operations Health Dashboard" src="https://andywujinhui.github.io/project-operations-health-dashboard/" loading="lazy"></iframe>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="scenario" id="scenario-ai" aria-label="Project AI capabilities">
+        <div class="panel">
+          <div class="scenario-header">
+            <div>
+              <h2>Project AI 能力</h2>
+              <p>展示 Project Operations 与 Copilot、MCP、Agent/Cowork 组合后的项目智能能力，从生成项目计划到报告、预警和自动化业务操作。</p>
+            </div>
+            <div class="badge-row">
+              <span class="badge primary">AI Assisted Delivery</span>
+              <span class="badge">Copilot</span>
+              <span class="badge">Agent</span>
+            </div>
+          </div>
+          <div class="tile-grid">
+            <article class="tile"><h3>标准 Copilot</h3><p>在 Microsoft 365 和业务应用中总结项目沟通、生成会议纪要、提炼风险和行动项。</p></article>
+            <article class="tile"><h3>WBS generation</h3><p>根据项目范围、合同内容和模板生成 WBS 建议，再通过 Project Operations 支持的方式落入计划。</p></article>
+            <article class="tile"><h3>项目报告生成</h3><p>基于项目状态、任务、工时、费用、风险和问题生成周报、月报和管理层摘要。</p></article>
+            <article class="tile"><h3>项目风险预警</h3><p>从进度偏差、预算消耗、审批积压和风险数量中识别潜在 off-track 项目。</p></article>
+            <article class="tile"><h3>Copilot Agent for Project</h3><p>支持项目概览查询、工时/费用提交、项目创建和状态更新等面向角色的自然语言入口。</p></article>
+            <article class="tile"><h3>Cowork in Teams</h3><p>把项目助手发布到 Teams，让项目团队直接在 channel 中协作和提问。</p></article>
+          </div>
+          <div class="flow" style="--cols: 5">
+            <div class="step"><span class="number">1</span><strong>询问项目概览</strong><span>项目经理在 Teams 中询问当前项目状态、预算、风险和本周重点。</span></div>
+            <div class="step"><span class="number">2</span><strong>生成 WBS 建议</strong><span>根据项目范围生成安装、调试、培训、UAT、验收等计划建议。</span></div>
+            <div class="step"><span class="number">3</span><strong>提交工时费用</strong><span>项目成员通过 Agent 提交或查询自己的工时、费用和审批状态。</span></div>
+            <div class="step"><span class="number">4</span><strong>风险预警</strong><span>AI 根据健康度数据提示延误、超预算、资源不足和开放问题。</span></div>
+            <div class="step"><span class="number">5</span><strong>生成报告</strong><span>自动生成客户周报、管理层摘要和下一步行动建议。</span></div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="panel">
+            <h3>Demo 话术</h3>
+            <ol class="script-list">
+              <li>AI 不替代项目经理，而是把项目经理每天需要追踪、整理、催办和汇报的工作自动化。</li>
+              <li>WBS 和排程数据需要通过 Project Operations 支持的界面或计划 API 更新，确保排程引擎一致性。</li>
+              <li>Agent 可以按角色工作：项目经理看全局，成员看自己的任务、工时、费用和待办。</li>
+            </ol>
+          </div>
+          <div class="preview">
+            <h3>Agent Conversation 示例</h3>
+            <div class="preview-frame">
+              <div class="mock-app" aria-label="Agent conversation mockup">
+                <div class="mock-row"></div><div class="mock-row"></div><div class="mock-row"></div>
+                <div class="mock-cards"><div class="mock-card"></div><div class="mock-card"></div><div class="mock-card"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="scenario" id="scenario-crm" aria-label="CRM to Project Operations">
+        <div class="panel">
+          <div class="scenario-header">
+            <div>
+              <h2>从 CRM 到 Project Operations 的项目闭环</h2>
+              <p>展示项目型销售从 Lead 开始，经过 Opportunity、Quote、Project Contract，最终生成 Project，形成售前到交付的一条完整业务链路。</p>
+            </div>
+            <div class="badge-row">
+              <span class="badge primary">Lead to Project</span>
+              <span class="badge">Sales</span>
+              <span class="badge">Delivery</span>
+            </div>
+          </div>
+          <div class="flow" style="--cols: 5">
+            <div class="step"><span class="number">1</span><strong>Lead</strong><span>客户产生项目需求，例如采购两台 MD-Demo001 并包含安装调试。</span></div>
+            <div class="step"><span class="number">2</span><strong>Opportunity</strong><span>销售识别项目机会，确认客户、预算、预计收入和交付范围。</span></div>
+            <div class="step"><span class="number">3</span><strong>Quote</strong><span>报价包含产品、安装调试、培训、UAT 和交付服务。</span></div>
+            <div class="step"><span class="number">4</span><strong>Project Contract</strong><span>报价赢单后生成项目合同和合同明细，成为交付和收入管理基础。</span></div>
+            <div class="step"><span class="number">5</span><strong>Project</strong><span>交付项目生成，项目经理按合同范围进行计划、资源、成本和健康度管理。</span></div>
+          </div>
+          <div class="tile-grid">
+            <article class="tile"><h3>Demo 项目</h3><p>MD-Demo001 安装调试项目 - Contoso Pharma，包含两台设备、安装调试和培训验收。</p></article>
+            <article class="tile"><h3>金额链路</h3><p>产品 240,000 CNY，安装调试 60,000 CNY，培训验收 20,000 CNY，总金额 320,000 CNY。</p></article>
+            <article class="tile"><h3>交付项目</h3><p>项目预算 320,000，预测成本 305,000，当前状态 Active / Plan / Yellow。</p></article>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="panel asset-list">
+            <div class="asset">
+              <div><strong>Power Apps Project Dashboard</strong><span>Teams 可用的轻量项目工作台 iframe 页面。</span></div>
+              <a href="Project-Dashboard-Power-Apps-Iframe.html" target="_blank" rel="noopener">Open local</a>
+            </div>
+            <div class="asset">
+              <div><strong>CRM to Project Flow 文档</strong><span>说明 Lead、Opportunity、Quote、Contract、Project 的表关系。</span></div>
+              <a href="CRM-to-Project-Operations-Lead-Opportunity-Quote-Project-Flow.md" target="_blank" rel="noopener">Open local</a>
+            </div>
+          </div>
+          <div class="preview">
+            <h3>业务链路示意</h3>
+            <div class="preview-frame">
+              <div class="mock-app" aria-label="CRM to Project flow mockup">
+                <div class="mock-cards"><div class="mock-card"></div><div class="mock-card"></div><div class="mock-card"></div></div>
+                <div class="mock-row"></div><div class="mock-row"></div><div class="mock-row"></div><div class="mock-row"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div class="toolbar">
+      <p>建议客户 demo 顺序：CRM 到项目创建 -> M365 协作发布 -> 项目健康度管理 -> AI 和 Agent 自动化。</p>
+      <button type="button" id="printButton">Print / Save PDF</button>
+    </div>
+  </div>
+
+  <script>
+    const buttons = Array.from(document.querySelectorAll(".nav-button"));
+    const scenarios = Array.from(document.querySelectorAll(".scenario"));
+
+    function activateScenario(id) {
+      buttons.forEach((button) => {
+        const active = button.dataset.scenario === id;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-current", active ? "true" : "false");
+      });
+      scenarios.forEach((scenario) => {
+        scenario.classList.toggle("active", scenario.id === `scenario-${id}`);
+      });
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => activateScenario(button.dataset.scenario));
+    });
+
+    document.getElementById("printButton").addEventListener("click", () => window.print());
+  </script>
+</body>
+</html>
