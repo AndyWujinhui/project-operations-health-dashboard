@@ -347,6 +347,52 @@
     .mock-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .mock-card { height: 68px; }
 
+    .crm-summary {
+      display: grid;
+      gap: 12px;
+    }
+    .crm-summary-card {
+      border: 1px solid var(--cp-border);
+      border-radius: 8px;
+      background: var(--cp-surface-soft);
+      padding: 14px;
+    }
+    .crm-summary-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+    .crm-summary-card p {
+      margin-bottom: 0;
+      color: var(--cp-text-muted);
+      font-size: 14px;
+    }
+    .crm-flow-map {
+      display: grid;
+      gap: 8px;
+      min-height: 220px;
+      padding: 12px;
+    }
+    .crm-flow-item {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      border: 1px solid var(--cp-border);
+      border-radius: 8px;
+      background: var(--cp-surface-soft);
+      padding: 10px;
+    }
+    .crm-flow-item b {
+      color: var(--cp-accent);
+      font-size: 13px;
+    }
+    .crm-flow-item span {
+      color: var(--cp-text-muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
     .toolbar {
       display: flex;
       justify-content: space-between;
@@ -592,22 +638,30 @@
           </div>
         </div>
         <div class="two-col">
-          <div class="panel asset-list">
-            <div class="asset">
-              <div><strong>Power Apps Project Dashboard</strong><span>Teams 可用的轻量项目工作台 iframe 页面。</span></div>
-              <a href="Project-Dashboard-Power-Apps-Iframe.html" target="_blank" rel="noopener">Open local</a>
+          <div class="panel crm-summary">
+            <h3>可演示业务对象</h3>
+            <div class="crm-summary-card">
+              <strong>售前对象</strong>
+              <p>Lead、Opportunity 和 Quote 体现客户需求识别、项目型商机推进、产品与服务组合报价。</p>
             </div>
-            <div class="asset">
-              <div><strong>CRM to Project Flow 文档</strong><span>说明 Lead、Opportunity、Quote、Contract、Project 的表关系。</span></div>
-              <a href="CRM-to-Project-Operations-Lead-Opportunity-Quote-Project-Flow.md" target="_blank" rel="noopener">Open local</a>
+            <div class="crm-summary-card">
+              <strong>合同对象</strong>
+              <p>Project Contract 承接报价赢单后的合同金额、合同明细、产品行和服务行，是交付与收入管理的起点。</p>
+            </div>
+            <div class="crm-summary-card">
+              <strong>交付对象</strong>
+              <p>Project 继承合同范围，进入项目计划、资源、成本、风险、问题和健康度管理。</p>
             </div>
           </div>
           <div class="preview">
             <h3>业务链路示意</h3>
             <div class="preview-frame">
-              <div class="mock-app" aria-label="CRM to Project flow mockup">
-                <div class="mock-cards"><div class="mock-card"></div><div class="mock-card"></div><div class="mock-card"></div></div>
-                <div class="mock-row"></div><div class="mock-row"></div><div class="mock-row"></div><div class="mock-row"></div>
+              <div class="crm-flow-map" aria-label="CRM to Project flow details">
+                <div class="crm-flow-item"><b>Lead</b><span>Contoso Pharma 提出采购 2 台 MD-Demo001，并需要安装、调试、培训和验收支持。</span></div>
+                <div class="crm-flow-item"><b>Opportunity</b><span>销售确认项目预算 320,000 CNY，形成医疗设备安装调试项目机会。</span></div>
+                <div class="crm-flow-item"><b>Quote</b><span>报价包含产品 240,000、安装调试 60,000、培训验收 20,000。</span></div>
+                <div class="crm-flow-item"><b>Contract</b><span>Project Contract 继承 Quote，总金额 320,000，并生成产品合同线与服务合同线。</span></div>
+                <div class="crm-flow-item"><b>Project</b><span>生成 MD-Demo001 安装调试项目，预算 320,000，预测成本 305,000，进入交付管控。</span></div>
               </div>
             </div>
           </div>
